@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Monthly Salary Details</title>
+
+<style>
+body{font-family:Arial;background:#f4f6f9;margin:0}
+.container{max-width:520px;margin:auto;background:#fff;padding:15px}
+h2{text-align:center;color:#0b3d91}
+
+.month{
+  border:1px solid #ddd;
+  border-radius:8px;
+  margin-bottom:8px;
+  overflow:hidden;
+}
+
+.month-header{
+  background:#0b3d91;
+  color:white;
+  padding:10px;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.month-body{
+  display:none;
+  padding:10px;
+  background:#fafafa;
+}
+
+input{
+  width:100%;
+  padding:8px;
+  margin:5px 0;
+  border-radius:5px;
+  border:1px solid #ccc;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  background:#0b3d91;
+  color:white;
+  border:none;
+  border-radius:6px;
+  font-size:16px;
+  margin-top:10px;
+}
+.info{
+  background:#eef3ff;
+  padding:8px;
+  border-radius:6px;
+  margin-bottom:10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Month-Wise Salary</h2>
+
+<div class="info">
+Medical Allowance ₹1000/month included ✔<br>
+Professional Tax ₹1000 in September ✔
+</div>
+
+<div id="months"></div>
+
+<button onclick="saveAndNext()">Next ➜</button>
+
+</div>
+
+<script>
+
+// ===== Load data from previous page =====
+let basic = parseFloat(localStorage.getItem("basicPay")) || 40000;
+let daPercent = parseFloat(localStorage.getItem("daPercent")) || 50;
+let hraPercent = parseFloat(localStorage.getItem("hraPercent")) || 10;
+let incrementMonth = localStorage.getItem("incrementMonth") || "July";
+
+const MEDICAL = 1000;
+
+const months = [
+"April","May","June","July","August","September",
+"October","November","December","January","February","March"
+];
+
+const container = document.getElementById("months");
+
+let currentBasic = basic;
+
+// ===== Generate Months =====
+months.forEach((m,i)=>{
+
+  // Increment logic
+  if(m === incrementMonth){
+    currentBasic = currentBasic * 1.03; // approx increment
+  }
+
+  const da = currentBasic * daPercent/100;
+  const hra = currentBasic * hraPercent/100;
+  const gross = currentBasic + da + hra + MEDICAL;
+
+  container.innerHTML += `
+  <div class="month">
+    <div class="month-header" onclick="toggle(${i})">
+      ${m} — Gross ₹${Math.round(gross)}
+    </div>
+
+    <div class="month-body" id="body${i}">
+
+      Basic Pay
+      <input type="number" id="basic${i}" value="${Math.round(currentBasic)}">
+
+      DA (${daPercent}%)
+      <input type="number" id="da${i}" value="${Math.round(da)}">
+
+      HRA (${hraPercent}%)
+      <input type="number" id="hra${i}" value="${Math.round(hra)}">
+
+      Medical Allowance
+      <input type="number" value="1000" disabled>
+
+    </div>
+  </div>
+  `;
+});
+
+// Toggle open
+function toggle(i){
+  const b = document.getElementById("body"+i);
+  b.style.display = b.style.display === "block" ? "none" : "block";
+}
+
+// Save data
+function saveAndNext(){
+
+  let data = [];
+
+  months.forEach((m,i)=>{
+
+    const basic = parseFloat(document.getElementById("basic"+i).value)||0;
+    const da = parseFloat(document.getElementById("da"+i).value)||0;
+    const hra = parseFloat(document.getElementById("hra"+i).value)||0;
+
+    data.push(basic, da, hra, MEDICAL);
+  });
+
+  localStorage.setItem("salaryData", JSON.stringify(data));
+
+  window.location.href = "calculation-page.html";
+}
+
+</script>
+
+</body>
+</html>
