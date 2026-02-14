@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Final Calculation</title>
+
+<style>
+body{font-family:Arial;background:#f4f6f9;margin:0}
+.container{max-width:520px;margin:auto;background:#fff;padding:15px}
+h2{text-align:center;color:#0b3d91}
+
+.card{
+  border:1px solid #ddd;
+  border-radius:8px;
+  padding:10px;
+  margin-bottom:8px;
+  background:#fafafa;
+}
+
+.total{
+  font-size:18px;
+  font-weight:bold;
+  color:#0b3d91;
+  text-align:center;
+  margin-top:10px;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  background:#0b3d91;
+  color:white;
+  border:none;
+  border-radius:6px;
+  font-size:16px;
+  margin-top:12px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Final Salary Summary</h2>
+
+<div id="report"></div>
+
+<div class="total" id="gross"></div>
+<div class="total" id="deduction"></div>
+<div class="total" id="taxable"></div>
+<div class="total" id="tax"></div>
+
+<button onclick="goNext()">Proceed to Form-16 ➜</button>
+
+</div>
+
+<script>
+
+// ===== Load salary data =====
+const salaryData = JSON.parse(localStorage.getItem("salaryData")) || [];
+
+// Teacher type
+const teacherType = localStorage.getItem("teacherType") || "niyojit";
+
+// HRA %
+const hraPercent = parseFloat(localStorage.getItem("hraPercent")) || 10;
+
+// DA %
+const daPercent = parseFloat(localStorage.getItem("daPercent")) || 50;
+
+const GIS = 30;
+const PROF_TAX = 1000;
+
+const months = [
+"April","May","June","July","August","September",
+"October","November","December","January","February","March"
+];
+
+let totalGross = 0;
+let totalDeduction = 0;
+
+const report = document.getElementById("report");
+
+// ===== Month-wise calculation =====
+months.forEach((month,i)=>{
+
+  const basic = salaryData[i*4] || 0;
+
+  const da = basic * daPercent/100;
+  const hra = basic * hraPercent/100;
+
+  // Medical already included in salaryData
+
+  let deduction = GIS;
+
+  // EPF / NPS
+  if(teacherType === "niyojit"){
+    deduction += 1800;
+  }else{
+    deduction += basic * 0.10;
+  }
+
+  // Professional tax
+  if(month === "September"){
+    deduction += PROF_TAX;
+  }
+
+  const gross = basic + da + hra + 1000;
+
+  totalGross += gross;
+  totalDeduction += deduction;
+
+  report.innerHTML += `
+  <div class="card">
+    <b>${month}</b><br>
+    Gross: ₹${Math.round(gross)}<br>
+    Deduction: ₹${Math.round(deduction)}
+  </div>`;
+});
+
+// ===== Taxable income =====
+const taxableIncome = totalGross - totalDeduction;
+
+// ===== Old regime tax =====
+function calculateTax(income){
+
+  if(income <= 250000) return 0;
+
+  if(income <= 500000)
+    return (income - 250000) * 0.05;
+
+  if(income <= 1000000)
+    return 12500 + (income - 500000) * 0.20;
+
+  return 112500 + (income - 1000000) * 0.30;
+}
+
+const tax = calculateTax(taxableIncome);
+
+// ===== Display totals =====
+document.getElementById("gross").innerHTML =
+"Total Gross Salary: ₹" + Math.round(totalGross);
+
+document.getElementById("deduction").innerHTML =
+"Total Deduction: ₹" + Math.round(totalDeduction);
+
+document.getElementById("taxable").innerHTML =
+"Taxable Income: ₹" + Math.round(taxableIncome);
+
+document.getElementById("tax").innerHTML =
+"Estimated Income Tax: ₹" + Math.round(tax);
+
+// ===== Save for next page =====
+function goNext(){
+
+  localStorage.setItem("finalGross", totalGross);
+  localStorage.setItem("finalTax", tax);
+  localStorage.setItem("taxableIncome", taxableIncome);
+
+  window.location.href = "form16-preview.html";
+}
+
+</script>
+
+</body>
+</html>
