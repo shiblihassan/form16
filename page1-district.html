@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>District & Session Details</title>
+
+<style>
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#eef2f7;
+}
+
+.container{
+  max-width:900px;
+  margin:40px auto;
+  background:#fff;
+  padding:30px;
+  border-radius:10px;
+  box-shadow:0 0 15px rgba(0,0,0,0.1);
+}
+
+h2{
+  text-align:center;
+  color:#0b5394;
+}
+
+.form-group{
+  margin-bottom:18px;
+}
+
+label{
+  font-weight:bold;
+  display:block;
+  margin-bottom:6px;
+}
+
+input, select{
+  width:100%;
+  padding:10px;
+  font-size:16px;
+  border-radius:5px;
+  border:1px solid #ccc;
+}
+
+button{
+  padding:12px 26px;
+  font-size:17px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  margin-top:15px;
+}
+
+.next-btn{
+  background:#0b5394;
+  color:#fff;
+}
+
+.next-btn:hover{
+  background:#073763;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>District & Session Details</h2>
+
+<!-- Financial Year -->
+<div class="form-group">
+<label>Financial Year *</label>
+<select id="fy">
+<option value="">Select Financial Year</option>
+<option>2025-26</option>
+<option>2026-27</option>
+<option>2027-28</option>
+<option>2028-29</option>
+<option>2029-30</option>
+</select>
+</div>
+
+<!-- District -->
+<div class="form-group">
+<label>District *</label>
+<select id="district" onchange="fillDPO()">
+<option value="">Select District</option>
+<option>Siwan</option>
+<option>Gopalganj</option>
+<option>Others</option>
+</select>
+</div>
+
+<!-- Office Name -->
+<div class="form-group">
+<label>Office Name *</label>
+<input type="text" id="office">
+</div>
+
+<!-- DPO Name -->
+<div class="form-group">
+<label>DPO Name *</label>
+<input type="text" id="dpoName">
+</div>
+
+<!-- DPO Father Name -->
+<div class="form-group">
+<label>DPO Father Name *</label>
+<input type="text" id="dpoFather">
+</div>
+
+<!-- PAN -->
+<div class="form-group">
+<label>DPO PAN *</label>
+<input type="text" id="pan">
+</div>
+
+<!-- TAN -->
+<div class="form-group">
+<label>TAN *</label>
+<input type="text" id="tan">
+</div>
+
+<button class="next-btn" onclick="goNext()">Next</button>
+
+</div>
+
+<script>
+
+/* ===== DISTRICT DATABASE ===== */
+
+const districtDB = {
+
+  "Siwan":{
+    office:"District Programme Office, Education, Siwan",
+    name:"DPO Siwan",
+    father:"Father Name",
+    pan:"ABCDE1111S",
+    tan:"SIWN11111A"
+  },
+
+  "Gopalganj":{
+    office:"District Programme Office, Education, Gopalganj",
+    name:"DPO Gopalganj",
+    father:"Father Name",
+    pan:"ABCDE2222G",
+    tan:"GOPL22222B"
+  }
+
+};
+
+/* ===== AUTO FILL ===== */
+
+function fillDPO(){
+
+  const dist = document.getElementById("district").value;
+
+  if(districtDB[dist]){
+
+    const d = districtDB[dist];
+
+    office.value = d.office;
+    dpoName.value = d.name;
+    dpoFather.value = d.father;
+    pan.value = d.pan;
+    tan.value = d.tan;
+
+  }else{
+    // Others — manual entry allowed
+    document.querySelectorAll("input").forEach(i=>i.value="");
+  }
+}
+
+/* ===== FINANCIAL YEAR → ASSESSMENT YEAR ===== */
+
+function getAY(fy){
+
+  const parts = fy.split("-");
+  const start = parseInt(parts[0]);
+  const end = start + 1;
+
+  return end + "-" + (end+1).toString().slice(-2);
+}
+
+/* ===== NEXT PAGE ===== */
+
+function goNext(){
+
+  const fields = ["fy","district","office","dpoName","dpoFather","pan","tan"];
+
+  for(let id of fields){
+    if(!document.getElementById(id).value){
+      alert("Please fill all fields");
+      return;
+    }
+  }
+
+  const fy = document.getElementById("fy").value;
+
+  const formData = {
+
+    financial_year: fy,
+    assessment_year: getAY(fy),
+
+    district: district.value,
+    office: office.value,
+
+    dpo_name: dpoName.value,
+    dpo_father: dpoFather.value,
+
+    dpo_pan: pan.value,
+    dpo_tan: tan.value
+
+  };
+
+  localStorage.setItem("formData", JSON.stringify(formData));
+
+  location.href = "page2-teacher.html";
+}
+
+</script>
+
+</body>
+</html>
