@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Teacher Details</title>
+
+<style>
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#eef2f7;
+}
+
+.container{
+  max-width:900px;
+  margin:40px auto;
+  background:#fff;
+  padding:30px;
+  border-radius:10px;
+  box-shadow:0 0 15px rgba(0,0,0,0.1);
+}
+
+h2{
+  text-align:center;
+  color:#0b5394;
+}
+
+.form-group{
+  margin-bottom:18px;
+}
+
+label{
+  font-weight:bold;
+  display:block;
+  margin-bottom:6px;
+}
+
+input, select{
+  width:100%;
+  padding:10px;
+  font-size:16px;
+  border-radius:5px;
+  border:1px solid #ccc;
+}
+
+button{
+  padding:12px 26px;
+  font-size:17px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  margin-top:15px;
+}
+
+.next-btn{
+  background:#0b5394;
+  color:#fff;
+}
+
+.next-btn:hover{
+  background:#073763;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Teacher Details</h2>
+
+<!-- Teacher Name -->
+<div class="form-group">
+<label>Teacher Name *</label>
+<input type="text" id="name">
+</div>
+
+<!-- PAN -->
+<div class="form-group">
+<label>PAN Number *</label>
+<input type="text" id="pan">
+</div>
+
+<!-- Mobile -->
+<div class="form-group">
+<label>Mobile Number *</label>
+<input type="tel" id="mobile">
+</div>
+
+<!-- School -->
+<div class="form-group">
+<label>School Name *</label>
+<input type="text" id="school">
+</div>
+
+<!-- UDISE -->
+<div class="form-group">
+<label>UDISE Code *</label>
+<input type="text" id="udise">
+</div>
+
+<!-- Teacher Type -->
+<div class="form-group">
+<label>Teacher Type *</label>
+<select id="type">
+<option value="">Select</option>
+<option>Exclusive Teacher</option>
+<option>BPSC Teacher</option>
+<option>Niyojit Teacher</option>
+</select>
+</div>
+
+<!-- Basic Pay -->
+<div class="form-group">
+<label>Current Basic Pay *</label>
+<input type="number" id="basic">
+</div>
+
+<!-- Increment Month -->
+<div class="form-group">
+<label>Increment Month *</label>
+<select id="incMonth">
+<option value="">Select</option>
+<option>January</option>
+<option>July</option>
+</select>
+</div>
+
+<!-- HRA -->
+<div class="form-group">
+<label>HRA Percentage *</label>
+<select id="hra">
+<option value="">Select</option>
+<option>4%</option>
+<option>5%</option>
+<option>6%</option>
+<option>7.5%</option>
+<option>8%</option>
+<option>10%</option>
+<option>15%</option>
+<option>16%</option>
+<option>20%</option>
+</select>
+</div>
+
+<button class="next-btn" onclick="goNext()">Next</button>
+
+</div>
+
+<script>
+
+function goNext(){
+
+  const fields = ["name","pan","mobile","school","udise","type","basic","incMonth","hra"];
+
+  for(let id of fields){
+    if(!document.getElementById(id).value){
+      alert("Please fill all fields");
+      return;
+    }
+  }
+
+  localStorage.setItem("t_name", name.value);
+  localStorage.setItem("t_pan", pan.value);
+  localStorage.setItem("t_mobile", mobile.value);
+  localStorage.setItem("t_school", school.value);
+  localStorage.setItem("t_udise", udise.value);
+  localStorage.setItem("t_type", type.value);
+  localStorage.setItem("t_basic", basic.value);
+  localStorage.setItem("t_incMonth", incMonth.value);
+  localStorage.setItem("t_hra", hra.value);
+
+  location.href = "salary-page.html";
+}
+
+</script>
+
+</body>
+</html>
