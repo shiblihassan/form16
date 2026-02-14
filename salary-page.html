@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Salary Details</title>
+
+<style>
+body{
+  font-family: Arial, sans-serif;
+  background:#f4f6f9;
+  margin:0;
+}
+
+.container{
+  max-width:520px;
+  margin:auto;
+  background:#fff;
+  padding:15px;
+}
+
+h2{
+  text-align:center;
+  color:#0b3d91;
+  margin-bottom:15px;
+}
+
+/* Accordion style */
+.month{
+  border:1px solid #ccc;
+  border-radius:8px;
+  margin-bottom:10px;
+  overflow:hidden;
+}
+
+.month-header{
+  background:#0b3d91;
+  color:white;
+  padding:12px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.month-content{
+  display:none;
+  padding:12px;
+  background:#fafafa;
+}
+
+label{
+  display:block;
+  margin-top:8px;
+  font-size:14px;
+}
+
+input{
+  width:100%;
+  padding:8px;
+  margin-top:4px;
+  border:1px solid #ccc;
+  border-radius:5px;
+}
+
+button{
+  width:100%;
+  margin-top:15px;
+  padding:12px;
+  background:#0b3d91;
+  color:white;
+  border:none;
+  border-radius:6px;
+  font-size:16px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h2>Salary Details (Financial Year)</h2>
+
+<div id="monthsContainer"></div>
+
+<button onclick="saveData()">Save & Next ➜</button>
+
+</div>
+
+<script>
+
+// Financial Year months (April → March)
+const months = [
+"April","May","June","July","August","September",
+"October","November","December","January","February","March"
+];
+
+// Previous page se basic salary
+let baseBasic = parseInt(localStorage.getItem("basicSalary")) || 25000;
+
+// Increment rule (Jan & July)
+function getBasic(month){
+  if(month === "July" || month === "January"){
+    return baseBasic + 500; // example increment
+  }
+  return baseBasic;
+}
+
+// Accordion toggle
+function toggle(id){
+  const el = document.getElementById(id);
+  el.style.display = el.style.display === "block" ? "none" : "block";
+}
+
+// Generate month blocks
+const container = document.getElementById("monthsContainer");
+
+months.forEach((month, i) => {
+
+  const basicValue = getBasic(month);
+
+  container.innerHTML += `
+  <div class="month">
+
+    <div class="month-header" onclick="toggle('m${i}')">
+      ${month}
+    </div>
+
+    <div class="month-content" id="m${i}">
+
+      <label>Basic Pay</label>
+      <input type="number" value="${basicValue}">
+
+      <label>DA</label>
+      <input type="number" placeholder="Auto / Edit if needed">
+
+      <label>HRA</label>
+      <input type="number" placeholder="Optional">
+
+      <label>Other Allowances</label>
+      <input type="number" placeholder="Optional">
+
+    </div>
+
+  </div>
+  `;
+});
+
+// Save (future calculation ke liye)
+function saveData(){
+
+  const allInputs = document.querySelectorAll("input");
+  const values = [];
+
+  allInputs.forEach(input => values.push(input.value));
+
+  localStorage.setItem("salaryData", JSON.stringify(values));
+
+  alert("Salary data saved ✅");
+  // next page link later
+}
+
+</script>
+
+</body>
+</html>
