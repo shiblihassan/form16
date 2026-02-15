@@ -3,57 +3,57 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Monthly Salary Details</title>
+<title>Salary Calculation</title>
 
 <style>
-body{font-family:Arial;background:#f4f6f9;margin:0}
-.container{max-width:520px;margin:auto;background:#fff;padding:15px}
-h2{text-align:center;color:#0b3d91}
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  background:#eef2f7;
+}
 
-.month{
-  border:1px solid #ddd;
+.container{
+  max-width:900px;
+  margin:40px auto;
+  background:#fff;
+  padding:30px;
+  border-radius:10px;
+  box-shadow:0 0 15px rgba(0,0,0,0.1);
+}
+
+h2{
+  text-align:center;
+  color:#0b5394;
+}
+
+.box{
+  background:#f7f9fc;
+  padding:15px;
+  margin:12px 0;
   border-radius:8px;
-  margin-bottom:8px;
-  overflow:hidden;
+  font-size:16px;
 }
 
-.month-header{
-  background:#0b3d91;
-  color:white;
-  padding:10px;
-  cursor:pointer;
+.total{
   font-weight:bold;
-}
-
-.month-body{
-  display:none;
-  padding:10px;
-  background:#fafafa;
-}
-
-input{
-  width:100%;
-  padding:8px;
-  margin:5px 0;
-  border-radius:5px;
-  border:1px solid #ccc;
+  font-size:18px;
+  color:#0b5394;
 }
 
 button{
-  width:100%;
-  padding:12px;
-  background:#0b3d91;
-  color:white;
+  padding:12px 26px;
+  font-size:17px;
   border:none;
   border-radius:6px;
-  font-size:16px;
-  margin-top:10px;
+  cursor:pointer;
+  margin-top:18px;
+  background:#0b5394;
+  color:#fff;
+  width:100%;
 }
-.info{
-  background:#eef3ff;
-  padding:8px;
-  border-radius:6px;
-  margin-bottom:10px;
+
+button:hover{
+  background:#073763;
 }
 </style>
 </head>
@@ -62,98 +62,100 @@ button{
 
 <div class="container">
 
-<h2>Month-Wise Salary</h2>
+<h2>Salary Calculation</h2>
 
-<div class="info">
-Medical Allowance ₹1000/month included ✔<br>
-Professional Tax ₹1000 in September ✔
-</div>
+<div class="box">Basic Pay: ₹ <span id="basic"></span></div>
+<div class="box">DA (50%): ₹ <span id="da"></span></div>
+<div class="box">HRA: ₹ <span id="hra"></span></div>
+<div class="box">Medical Allowance: ₹ 1000</div>
 
-<div id="months"></div>
+<div class="box total">Monthly Gross: ₹ <span id="monthlyGross"></span></div>
+<div class="box total">Yearly Gross: ₹ <span id="yearlyGross"></span></div>
 
-<button onclick="saveAndNext()">Next ➜</button>
+<hr>
+
+<div class="box">Employee Contribution (NPS / EPF): ₹ <span id="deduction"></span></div>
+<div class="box">GIS (₹30 × 12): ₹ 360</div>
+<div class="box">Professional Tax: ₹ 1000</div>
+
+<div class="box total">Total Deductions: ₹ <span id="totalDed"></span></div>
+
+<button onclick="goNext()">Proceed to Form-16</button>
 
 </div>
 
 <script>
 
-// ===== Load data from previous page =====
-let basic = parseFloat(localStorage.getItem("basicPay")) || 40000;
-let daPercent = parseFloat(localStorage.getItem("daPercent")) || 50;
-let hraPercent = parseFloat(localStorage.getItem("hraPercent")) || 10;
-let incrementMonth = localStorage.getItem("incrementMonth") || "July";
+/* ===== FETCH DATA ===== */
 
-const MEDICAL = 1000;
+const basic = Number(localStorage.getItem("t_basic") || 0);
+const hraPercent = Number(localStorage.getItem("t_hra") || 0);
+const type = localStorage.getItem("t_type") || "";
 
-const months = [
-"April","May","June","July","August","September",
-"October","November","December","January","February","March"
-];
+/* ===== CALCULATION ===== */
 
-const container = document.getElementById("months");
+const da = Math.round(basic * 0.50);
+const hra = Math.round(basic * hraPercent / 100);
+const medical = 1000;
 
-let currentBasic = basic;
+const monthlyGross = basic + da + hra + medical;
+const yearlyGross = monthlyGross * 12;
 
-// ===== Generate Months =====
-months.forEach((m,i)=>{
+/* ===== DEDUCTIONS ===== */
 
-  // Increment logic
-  if(m === incrementMonth){
-    currentBasic = currentBasic * 1.03; // approx increment
-  }
+let employeeContribution = 0;
 
-  const da = currentBasic * daPercent/100;
-  const hra = currentBasic * hraPercent/100;
-  const gross = currentBasic + da + hra + MEDICAL;
-
-  container.innerHTML += `
-  <div class="month">
-    <div class="month-header" onclick="toggle(${i})">
-      ${m} — Gross ₹${Math.round(gross)}
-    </div>
-
-    <div class="month-body" id="body${i}">
-
-      Basic Pay
-      <input type="number" id="basic${i}" value="${Math.round(currentBasic)}">
-
-      DA (${daPercent}%)
-      <input type="number" id="da${i}" value="${Math.round(da)}">
-
-      HRA (${hraPercent}%)
-      <input type="number" id="hra${i}" value="${Math.round(hra)}">
-
-      Medical Allowance
-      <input type="number" value="1000" disabled>
-
-    </div>
-  </div>
-  `;
-});
-
-// Toggle open
-function toggle(i){
-  const b = document.getElementById("body"+i);
-  b.style.display = b.style.display === "block" ? "none" : "block";
+if(type === "Niyojit"){
+  employeeContribution = 1800 * 12;   // EPF
+}else{
+  employeeContribution = Math.round((basic + da) * 0.10) * 12; // NPS
 }
 
-// Save data
-function saveAndNext(){
+const gis = 360;
+const profTax = 1000;
 
-  let data = [];
+const totalDed = employeeContribution + gis + profTax;
 
-  months.forEach((m,i)=>{
+/* ===== TAXABLE ===== */
 
-    const basic = parseFloat(document.getElementById("basic"+i).value)||0;
-    const da = parseFloat(document.getElementById("da"+i).value)||0;
-    const hra = parseFloat(document.getElementById("hra"+i).value)||0;
+const taxable = yearlyGross - totalDed - 50000; // Std deduction
 
-    data.push(basic, da, hra, MEDICAL);
-  });
+/* ===== SIMPLE TAX (Old Regime approx) ===== */
 
-  localStorage.setItem("salaryData", JSON.stringify(data));
+let tax = 0;
 
-  window.location.href = "calculation-page.html";
+if(taxable > 500000){
+  tax = Math.round((taxable - 500000) * 0.20);
+}else if(taxable > 250000){
+  tax = Math.round((taxable - 250000) * 0.05);
+}
+
+/* ===== DISPLAY ===== */
+
+function set(id,val){
+  document.getElementById(id).innerText = val.toLocaleString();
+}
+
+set("basic", basic);
+set("da", da);
+set("hra", hra);
+set("monthlyGross", monthlyGross);
+set("yearlyGross", yearlyGross);
+set("deduction", employeeContribution);
+set("totalDed", totalDed);
+
+/* ===== SAVE FOR FORM-16 ===== */
+
+localStorage.setItem("f16_monthlyGross", monthlyGross);
+localStorage.setItem("f16_yearlyGross", yearlyGross);
+localStorage.setItem("f16_totalDed", totalDed);
+localStorage.setItem("f16_taxable", taxable);
+localStorage.setItem("f16_tax", tax);
+
+/* ===== NEXT ===== */
+
+function goNext(){
+  location.href = "form16.html";
 }
 
 </script>
