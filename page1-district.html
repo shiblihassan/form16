@@ -42,6 +42,11 @@ input, select{
   font-size:16px;
   border-radius:5px;
   border:1px solid #ccc;
+  box-sizing:border-box;
+}
+
+input[readonly]{
+  background:#f2f2f2;
 }
 
 button{
@@ -56,10 +61,17 @@ button{
 .next-btn{
   background:#0b5394;
   color:#fff;
+  width:100%;
 }
 
 .next-btn:hover{
   background:#073763;
+}
+
+.note{
+  font-size:13px;
+  color:#666;
+  margin-top:5px;
 }
 </style>
 </head>
@@ -70,17 +82,18 @@ button{
 
 <h2>District & Session Details</h2>
 
-<!-- Financial Year -->
+<!-- Assessment Year -->
 <div class="form-group">
-<label>Financial Year *</label>
-<select id="fy">
-<option value="">Select Financial Year</option>
+<label>Assessment Year *</label>
+<select id="year">
+<option value="">Select Year</option>
 <option>2025-26</option>
 <option>2026-27</option>
 <option>2027-28</option>
 <option>2028-29</option>
 <option>2029-30</option>
 </select>
+<div class="note">Financial Year will auto calculate</div>
 </div>
 
 <!-- District -->
@@ -88,16 +101,13 @@ button{
 <label>District *</label>
 <select id="district" onchange="fillDPO()">
 <option value="">Select District</option>
+<option>Patna</option>
+<option>Gaya</option>
+<option>Muzaffarpur</option>
 <option>Siwan</option>
 <option>Gopalganj</option>
 <option>Others</option>
 </select>
-</div>
-
-<!-- Office Name -->
-<div class="form-group">
-<label>Office Name *</label>
-<input type="text" id="office">
 </div>
 
 <!-- DPO Name -->
@@ -115,13 +125,19 @@ button{
 <!-- PAN -->
 <div class="form-group">
 <label>DPO PAN *</label>
-<input type="text" id="pan">
+<input type="text" id="pan" maxlength="10" style="text-transform:uppercase">
 </div>
 
 <!-- TAN -->
 <div class="form-group">
 <label>TAN *</label>
-<input type="text" id="tan">
+<input type="text" id="tan" maxlength="10" style="text-transform:uppercase">
+</div>
+
+<!-- Office Name -->
+<div class="form-group">
+<label>Office Name *</label>
+<input type="text" id="office">
 </div>
 
 <button class="next-btn" onclick="goNext()">Next</button>
@@ -130,93 +146,135 @@ button{
 
 <script>
 
-/* ===== DISTRICT DATABASE ===== */
+/* =========================
+   DISTRICT MASTER DATA
+   ========================= */
 
-const districtDB = {
+const dpoData = {
+
+  "Patna":{
+    name:"District Programme Officer, Patna",
+    father:"—",
+    pan:"ABCDE1234F",
+    tan:"PTNA12345B",
+    office:"District Education Office, Patna"
+  },
+
+  "Gaya":{
+    name:"District Programme Officer, Gaya",
+    father:"—",
+    pan:"ABCDE5678G",
+    tan:"GYAA54321C",
+    office:"District Education Office, Gaya"
+  },
+
+  "Muzaffarpur":{
+    name:"District Programme Officer, Muzaffarpur",
+    father:"—",
+    pan:"ABCDE9999M",
+    tan:"MUZP67890D",
+    office:"District Education Office, Muzaffarpur"
+  },
 
   "Siwan":{
-    office:"District Programme Office, Education, Siwan",
-    name:"DPO Siwan",
-    father:"Father Name",
+    name:"District Programme Officer, Siwan",
+    father:"—",
     pan:"ABCDE1111S",
-    tan:"SIWN11111A"
+    tan:"SIWN11111A",
+    office:"District Education Office, Siwan"
   },
 
   "Gopalganj":{
-    office:"District Programme Office, Education, Gopalganj",
-    name:"DPO Gopalganj",
-    father:"Father Name",
+    name:"District Programme Officer, Gopalganj",
+    father:"—",
     pan:"ABCDE2222G",
-    tan:"GOPL22222B"
+    tan:"GOPL22222B",
+    office:"District Education Office, Gopalganj"
   }
 
 };
 
-/* ===== AUTO FILL ===== */
+
+/* =========================
+   AUTO FILL DISTRICT DATA
+   ========================= */
 
 function fillDPO(){
 
   const dist = document.getElementById("district").value;
 
-  if(districtDB[dist]){
+  const name   = document.getElementById("dpoName");
+  const father = document.getElementById("dpoFather");
+  const pan    = document.getElementById("pan");
+  const tan    = document.getElementById("tan");
+  const office = document.getElementById("office");
 
-    const d = districtDB[dist];
+  if(dpoData[dist]){
 
-    office.value = d.office;
-    dpoName.value = d.name;
-    dpoFather.value = d.father;
-    pan.value = d.pan;
-    tan.value = d.tan;
+    const data = dpoData[dist];
+
+    name.value   = data.name;
+    father.value = data.father;
+    pan.value    = data.pan;
+    tan.value    = data.tan;
+    office.value = data.office;
+
+    name.readOnly = true;
+    father.readOnly = true;
+    pan.readOnly = true;
+    tan.readOnly = true;
+    office.readOnly = true;
 
   }else{
-    // Others — manual entry allowed
-    document.querySelectorAll("input").forEach(i=>i.value="");
+
+    name.value = "";
+    father.value = "";
+    pan.value = "";
+    tan.value = "";
+    office.value = "";
+
+    name.readOnly = false;
+    father.readOnly = false;
+    pan.readOnly = false;
+    tan.readOnly = false;
+    office.readOnly = false;
   }
 }
 
-/* ===== FINANCIAL YEAR → ASSESSMENT YEAR ===== */
 
-function getAY(fy){
-
-  const parts = fy.split("-");
-  const start = parseInt(parts[0]);
-  const end = start + 1;
-
-  return end + "-" + (end+1).toString().slice(-2);
-}
-
-/* ===== NEXT PAGE ===== */
+/* =========================
+   VALIDATION + SAVE DATA
+   ========================= */
 
 function goNext(){
 
-  const fields = ["fy","district","office","dpoName","dpoFather","pan","tan"];
+  const year     = document.getElementById("year").value;
+  const district = document.getElementById("district").value;
+  const dpoName  = document.getElementById("dpoName").value.trim();
+  const dpoFather= document.getElementById("dpoFather").value.trim();
+  const pan      = document.getElementById("pan").value.trim().toUpperCase();
+  const tan      = document.getElementById("tan").value.trim().toUpperCase();
+  const office   = document.getElementById("office").value.trim();
 
-  for(let id of fields){
-    if(!document.getElementById(id).value){
-      alert("Please fill all fields");
-      return;
-    }
+  if(!year || !district || !dpoName || !dpoFather || !pan || !tan || !office){
+    alert("Please fill all fields");
+    return;
   }
 
-  const fy = document.getElementById("fy").value;
+  /* Financial Year auto */
+  const ayStart = parseInt(year.split("-")[0]);
+  const fy = (ayStart-1) + "-" + String(ayStart).slice(2);
 
-  const formData = {
+  /* Save for Form-16 */
 
-    financial_year: fy,
-    assessment_year: getAY(fy),
-
-    district: district.value,
-    office: office.value,
-
-    dpo_name: dpoName.value,
-    dpo_father: dpoFather.value,
-
-    dpo_pan: pan.value,
-    dpo_tan: tan.value
-
-  };
-
-  localStorage.setItem("formData", JSON.stringify(formData));
+  localStorage.setItem("form16_AY", year);
+  localStorage.setItem("form16_FY", fy);
+  localStorage.setItem("form16_district", district);
+  localStorage.setItem("form16_dpoName", dpoName);
+  localStorage.setItem("form16_dpoFather", dpoFather);
+  localStorage.setItem("form16_pan", pan);
+  localStorage.setItem("form16_tan", tan);
+  localStorage.setItem("form16_office", office);
 
   location.href = "page2-teacher.html";
 }
