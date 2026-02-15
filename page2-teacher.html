@@ -42,6 +42,7 @@ input, select{
   font-size:16px;
   border-radius:5px;
   border:1px solid #ccc;
+  box-sizing:border-box;
 }
 
 button{
@@ -56,6 +57,7 @@ button{
 .next-btn{
   background:#0b5394;
   color:#fff;
+  width:100%;
 }
 
 .next-btn:hover{
@@ -70,77 +72,73 @@ button{
 
 <h2>Teacher Details</h2>
 
-<!-- Teacher Name -->
 <div class="form-group">
 <label>Teacher Name *</label>
-<input type="text" id="name">
+<input type="text" id="t_name">
 </div>
 
-<!-- PAN -->
 <div class="form-group">
-<label>PAN Number *</label>
-<input type="text" id="pan">
+<label>Father Name *</label>
+<input type="text" id="t_father">
 </div>
 
-<!-- Mobile -->
+<div class="form-group">
+<label>PAN (Teacher) *</label>
+<input type="text" id="t_pan" maxlength="10" style="text-transform:uppercase">
+</div>
+
 <div class="form-group">
 <label>Mobile Number *</label>
-<input type="tel" id="mobile">
+<input type="tel" id="t_mobile" maxlength="10">
 </div>
 
-<!-- School -->
 <div class="form-group">
 <label>School Name *</label>
-<input type="text" id="school">
+<input type="text" id="t_school">
 </div>
 
-<!-- UDISE -->
 <div class="form-group">
 <label>UDISE Code *</label>
-<input type="text" id="udise">
+<input type="text" id="t_udise">
 </div>
 
-<!-- Teacher Type -->
 <div class="form-group">
 <label>Teacher Type *</label>
-<select id="type">
-<option value="">Select</option>
-<option>Exclusive Teacher</option>
-<option>BPSC Teacher</option>
-<option>Niyojit Teacher</option>
+<select id="t_type">
+<option value="">Select Type</option>
+<option>Niyojit</option>
+<option>BPSC</option>
+<option>Exclusive</option>
 </select>
 </div>
 
-<!-- Basic Pay -->
 <div class="form-group">
-<label>Current Basic Pay *</label>
-<input type="number" id="basic">
+<label>Basic Pay *</label>
+<input type="number" id="t_basic">
 </div>
 
-<!-- Increment Month -->
+<div class="form-group">
+<label>HRA % *</label>
+<select id="t_hra">
+<option value="">Select HRA</option>
+<option>4</option>
+<option>5</option>
+<option>6</option>
+<option>7.5</option>
+<option>8</option>
+<option>10</option>
+<option>15</option>
+<option>16</option>
+<option>20</option>
+</select>
+</div>
+
 <div class="form-group">
 <label>Increment Month *</label>
-<select id="incMonth">
-<option value="">Select</option>
+<select id="t_increment">
+<option value="">Select Month</option>
 <option>January</option>
 <option>July</option>
-</select>
-</div>
-
-<!-- HRA -->
-<div class="form-group">
-<label>HRA Percentage *</label>
-<select id="hra">
-<option value="">Select</option>
-<option>4%</option>
-<option>5%</option>
-<option>6%</option>
-<option>7.5%</option>
-<option>8%</option>
-<option>10%</option>
-<option>15%</option>
-<option>16%</option>
-<option>20%</option>
 </select>
 </div>
 
@@ -152,24 +150,34 @@ button{
 
 function goNext(){
 
-  const fields = ["name","pan","mobile","school","udise","type","basic","incMonth","hra"];
+  const name = document.getElementById("t_name").value.trim();
+  const father = document.getElementById("t_father").value.trim();
+  const pan = document.getElementById("t_pan").value.trim().toUpperCase();
+  const mobile = document.getElementById("t_mobile").value.trim();
+  const school = document.getElementById("t_school").value.trim();
+  const udise = document.getElementById("t_udise").value.trim();
+  const type = document.getElementById("t_type").value;
+  const basic = document.getElementById("t_basic").value;
+  const hra = document.getElementById("t_hra").value;
+  const inc = document.getElementById("t_increment").value;
 
-  for(let id of fields){
-    if(!document.getElementById(id).value){
-      alert("Please fill all fields");
-      return;
-    }
+  if(!name || !father || !pan || !mobile || !school || !udise || !type || !basic || !hra || !inc){
+    alert("Please fill all fields");
+    return;
   }
 
-  localStorage.setItem("t_name", name.value);
-  localStorage.setItem("t_pan", pan.value);
-  localStorage.setItem("t_mobile", mobile.value);
-  localStorage.setItem("t_school", school.value);
-  localStorage.setItem("t_udise", udise.value);
-  localStorage.setItem("t_type", type.value);
-  localStorage.setItem("t_basic", basic.value);
-  localStorage.setItem("t_incMonth", incMonth.value);
-  localStorage.setItem("t_hra", hra.value);
+  /* SAVE TEACHER DATA */
+
+  localStorage.setItem("t_name", name);
+  localStorage.setItem("t_father", father);
+  localStorage.setItem("t_pan", pan);
+  localStorage.setItem("t_mobile", mobile);
+  localStorage.setItem("t_school", school);
+  localStorage.setItem("t_udise", udise);
+  localStorage.setItem("t_type", type);
+  localStorage.setItem("t_basic", basic);
+  localStorage.setItem("t_hra", hra);
+  localStorage.setItem("t_increment", inc);
 
   location.href = "salary-page.html";
 }
